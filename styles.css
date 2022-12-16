@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    background-color: rgb(43, 49, 54);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+button {
+    font-size: 24px;
+    padding: 4px;
+}
+
+.game-container {
+    background-color: rgb(92, 124, 143);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+}
+
+.grid-container {
+    height: 450px;
+    width: 450px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+
+/* ========= GRID BORDERS ========= */
+
+.grid-cell {
+    border: black solid 1px;
+}
+
+.grid-cell:first-child {
+    border-left: none;
+    border-top: none;
+}
+
+.grid-cell:nth-child(2) {
+    border-top: none;
+}
+
+.grid-cell:nth-child(3) {
+    border-top: none;
+    border-right: none;
+}
+
+.grid-cell:nth-child(4) {
+    border-left: none;
+}
+
+.grid-cell:nth-child(6) {
+    border-right: none;
+}
+
+.grid-cell:nth-child(7) {
+    border-left: none;
+    border-bottom: none;
+}
+
+.grid-cell:nth-child(8) {
+    border-bottom: none;
+}
+
+.grid-cell:last-child {
+    border-right: none;
+    border-bottom: none;
+}
