@@ -13,13 +13,17 @@ const menu = (() => {
 })();
 
 
+
 const game = (() => {
-    var playerList = [];
-    var markers = ['X', 'O']
+    let playerList = [];
+    let currentTurn = '';
+    const markers = ['X', 'O']
 
     const start = () => {
         console.log('start');
         createPlayers();
+        gameBoard.initGrid();
+        console.log(gameBoard.domGrid);
     }
     
     const restart = () => {
@@ -34,7 +38,11 @@ const game = (() => {
     const createPlayers = () => {
         if (playerList.length === 0) {
             for (let i = 0; i < 2; i++) {    
-                const newPlayer = Player(`Player ${i+1}`, markers[i])
+                const newPlayer = Player(
+                    `Player ${i+1}`,
+                    markers[i],
+                    gameBoard.domGrid
+                    );
                 playerList.push(newPlayer);
             }
         }
@@ -45,15 +53,39 @@ const game = (() => {
 })();
 
 
+
 const gameBoard = (() => {
-    let gameBoard = [];
+    let gameBoard = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+    ];
+
+    //cache dom
+    const initGrid = () => {    
+        const domGrid = document.querySelectorAll('.grid-cell');
+        console.log('domgrid = ' + domGrid);
+        // domGrid.forEach(el => addEventListener('click', () => {}))
+        return domGrid;
+    }
+
+    const updateDisplay = () => {
+        return;
+    }
+
+    return {updateDisplay, initGrid}
 })();
 
 
-const Player = (name, marker) => {
-    return {name, marker};
+
+const Player = (name, marker, grid) => {
+    let isMyTurn = false;
+
+    const placeMarker = () => {
+        
+    }
+
+    return {name, marker, grid};
 }
 
-
-
-// game.createPlayers();
+console.log(gameBoard.initGrid());

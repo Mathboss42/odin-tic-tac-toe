@@ -48,6 +48,11 @@ button {
 
 .grid-cell {
     border: black solid 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 96px;
+    font-family: sans-serif;
 }
 
 .grid-cell:first-child {
