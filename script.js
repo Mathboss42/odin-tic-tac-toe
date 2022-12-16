@@ -130,8 +130,26 @@ const gameBoard = (() => {
     }
 
     const checkForWin = () => {
+        let wincondition = 's';
+        if (wincondition === '') {
+            console.log('win conditions met, game over: {player} won')
+        } else if (isGameBoardFull()) {
+            console.log('gameboard is full, game over: tie');
+        } else {
+            return;
+        }
         console.log('check for win');
-        gameBoard.forEach(el => console.log(el.includes('')));
+        console.log(isGameBoardFull());
+    }
+
+    const isGameBoardFull = () => {
+        let isFull = true;
+        gameBoard.forEach(el => {
+            if (el.includes('')) {
+                isFull = false;
+            }
+        });
+        return isFull;
     }
 
     return {initGameBoard, getCurrentCell, update};
@@ -144,5 +162,3 @@ const Player = (name, marker) => {
 
     return {name, marker, isMyTurn};
 }
-
-// gameBoard.initGameBoard();
