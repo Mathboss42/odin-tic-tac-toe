@@ -67,7 +67,6 @@ const game = (() => {
                 playerList.forEach(el => el.isMyTurn = !(el.isMyTurn));
             }
         }
-        // console.log(currentPlayer);
     }
 
     const updageTurnCount = () => {
@@ -76,7 +75,6 @@ const game = (() => {
         } else {
             turnCount += 0.5;
         }
-        // console.log(`turn count = ${turnCount}`);
     }
 
     const placeMarker = (e) => {
@@ -87,8 +85,12 @@ const game = (() => {
             return;
         } else {
             gameBoard.update(x, y, currentPlayer.marker, turnCount);
-            setCurrentPlayer();
-            updageTurnCount();
+            if (gameBoard.getStatus() === 'ongoing') {
+                setCurrentPlayer();
+                updageTurnCount();
+            } else {
+                endGame(gameBoard.getStatus(), currentPlayer);
+            }
         }
     }
 
@@ -100,16 +102,23 @@ const game = (() => {
         }
     }
 
-    const endGame = (result) => {
-        console.log('endgame ' + result);
+    const endGame = (status, currentPlayer) => {
+        switch (status) {
+            case 'win':
+                console.log(`${currentPlayer.name} won! Congratulations!`);
+                break;
+            case 'draw':
+                console.log(`Draw! No winner this time!`);
+        }
     } 
     
-    return {start, restart, quit, placeMarker, endGame};
+    return {start, restart, quit, placeMarker};
 })();
 
 
 
 const gameBoard = (() => {
+    let status;
     let gameBoard = [
         ['', '', ''],
         ['', '', ''],
@@ -119,6 +128,7 @@ const gameBoard = (() => {
     const domGrid = document.querySelectorAll('.grid-cell');
     
     const initGameBoard = () => {
+        status = 'ongoing';
         for (let i = 0; i < domGrid.length; i++) {
             domGrid[i].addEventListener('click', game.placeMarker);
         }
@@ -137,7 +147,11 @@ const gameBoard = (() => {
     const update = (x, y, marker, turnCount) => {
         updateGameBoard(x, y, marker);
         updateDisplay(x, y, marker);
-        checkForWin(x, y, marker, turnCount);
+        if (checkForWin(x, y, marker, turnCount)) {
+            status = 'win';
+        } else if (isGameBoardFull()) {
+            status = 'draw';
+        }
     }
 
     const updateGameBoard = (x, y, marker) => {
@@ -150,18 +164,17 @@ const gameBoard = (() => {
 
     const checkForWin = (x, y, marker, turnCount) => {
         if (turnCount >= 3) {
-            if (checkLine(marker, x) || checkColumn(marker, y) || checkDiagonals(x, y, marker)) {
-                console.log(`WIIIIN!!!`);
+            if (checkLine(marker, x) 
+            || checkColumn(marker, y) 
+            || checkDiagonals(x, y, marker)) {
+                return true;
+            } else {
+                return false;
             }
-        } else if (isGameBoardFull()) {
-            console.log('gameboard is full, game over: tie');
-        } else {
-            return;
         }
     }
 
     const checkLine = (marker, x) => {
-        // console.log(`checkLine called x=${x} and marker is ${marker}`);
         let bool;
         for (let i = 0; i < gameBoard.length; i++) {
             if (gameBoard[x][i] == marker) {
@@ -172,12 +185,10 @@ const gameBoard = (() => {
                 break;
             }
         }
-        // console.log(`bool = ${bool}`);
         return bool;
     }
 
     const checkColumn = (marker, y) => {
-        // console.log(`checkColumn called y=${y} and marker is ${marker}`);
         let bool;
         for (let i = 0; i < gameBoard.length; i++) {
             if (gameBoard[i][y] == marker) {
@@ -188,7 +199,6 @@ const gameBoard = (() => {
                 break;
             }
         }
-        // console.log(`bool = ${bool}`);
         return bool;
     }
 
@@ -232,7 +242,11 @@ const gameBoard = (() => {
         return isFull;
     }
 
-    return {initGameBoard, getCurrentCell, update};
+    const getStatus = () => {
+        return status;
+    }
+
+    return {initGameBoard, getCurrentCell, update, getStatus};
 })();
 
 
