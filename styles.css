@@ -2,6 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: sans-serif;
 }
 
 html, body {
@@ -15,7 +16,19 @@ html, body {
 }
 
 .menu {
-    height: 100px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.announcement {
+    font-size: 36px;
+    color: aliceblue;
+}
+
+.buttons-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,7 +69,6 @@ button {
     justify-content: center;
     align-items: center;
     font-size: 96px;
-    font-family: sans-serif;
 }
 
 .grid-cell:first-child {

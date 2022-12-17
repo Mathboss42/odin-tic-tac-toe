@@ -8,22 +8,37 @@ const menu = (() => {
     
     const restart = () => {
         game.restart();
+        clearAnnouncement();
     }
 
     const quit = () => {
         game.quit();
+        clearAnnouncement();
         startButton.classList.remove('hidden');
         restartButton.classList.add('hidden');
         quitButton.classList.add('hidden');
     }
 
+    const displayAnnouncement = (message) => {
+        announcement.innerHTML = message;
+        announcement.classList.remove('hidden');
+    }
+
+    const clearAnnouncement = () => {
+        announcement.innerHTML = '';
+        announcement.classList.add('hidden');
+    }
+
     const startButton = document.querySelector('.start-button');
     const restartButton = document.querySelector('.restart-button');
     const quitButton = document.querySelector('.quit-button');
+    const announcement = document.querySelector('.announcement');
     
     startButton.addEventListener('click', start);
     restartButton.addEventListener('click', restart);
     quitButton.addEventListener('click', quit);
+
+    return {displayAnnouncement}
 })();
 
 
@@ -120,10 +135,10 @@ const game = (() => {
     const endGame = (status, currentPlayer) => {
         switch (status) {
             case 'win':
-                console.log(`${currentPlayer.name} won! Congratulations!`);
+                menu.displayAnnouncement(`${currentPlayer.name} won! Congratulations!`);
                 break;
             case 'draw':
-                console.log(`Draw! No winner this time!`);
+                menu.displayAnnouncement(`Draw! No winner this time!`);
         }
     } 
     
@@ -161,9 +176,7 @@ const gameBoard = (() => {
                 break;
             case 'quit':
                 status = undefined;
-                for (let i = 0; i < domGrid.length; i++) {
-                    domGrid[i].removeEventListener('click', game.placeMarker);
-                }
+                disableBoard();
                 gameBoard = [
                     ['', '', ''],
                     ['', '', ''],
@@ -173,6 +186,12 @@ const gameBoard = (() => {
                 break;
         }
         
+    }
+
+    const disableBoard = () => {
+        for (let i = 0; i < domGrid.length; i++) {
+            domGrid[i].removeEventListener('click', game.placeMarker);
+        }
     }
 
     const getCurrentCell = (x, y) => {
@@ -190,8 +209,10 @@ const gameBoard = (() => {
         updateDisplay(x, y, marker);
         if (checkForWin(x, y, marker, turnCount)) {
             status = 'win';
+            disableBoard();
         } else if (isGameBoardFull()) {
             status = 'draw';
+            disableBoard();
         }
     }
 
