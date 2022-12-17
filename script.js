@@ -6,9 +6,16 @@ const menu = (() => {
         quitButton.classList.remove('hidden');
     };
     
-    const restart = () => game.restart();
+    const restart = () => {
+        game.restart();
+    }
 
-    const quit = () => game.quit();
+    const quit = () => {
+        game.quit();
+        startButton.classList.remove('hidden');
+        restartButton.classList.add('hidden');
+        quitButton.classList.add('hidden');
+    }
 
     const startButton = document.querySelector('.start-button');
     const restartButton = document.querySelector('.restart-button');
@@ -32,17 +39,25 @@ const game = (() => {
         createPlayers();
         setCurrentPlayer();
         updageTurnCount();
-        gameBoard.initGameBoard();
+        gameBoard.initGameBoard('start');
     }
     
     const restart = () => {
         console.log('restart');
+        playerList = [];
+        createPlayers();
         setCurrentPlayer();
+        turnCount = undefined;
+        updageTurnCount();
+        gameBoard.initGameBoard('restart');
     }
     
     const quit = () => {
         console.log('quit');
-        
+        playerList = [];
+        turnCount = undefined;
+        currentPlayer = undefined;
+        gameBoard.initGameBoard('quit');
     }
     
     const createPlayers = () => {
@@ -127,11 +142,37 @@ const gameBoard = (() => {
     
     const domGrid = document.querySelectorAll('.grid-cell');
     
-    const initGameBoard = () => {
-        status = 'ongoing';
-        for (let i = 0; i < domGrid.length; i++) {
-            domGrid[i].addEventListener('click', game.placeMarker);
+    const initGameBoard = (value) => {
+        switch (value) {
+            case 'start':
+                status = 'ongoing';
+                for (let i = 0; i < domGrid.length; i++) {
+                    domGrid[i].addEventListener('click', game.placeMarker);
+                }
+                break;
+            case 'restart':
+                status = 'ongoing';
+                gameBoard = [
+                    ['', '', ''],
+                    ['', '', ''],
+                    ['', '', '']
+                ];
+                clearDisplay();
+                break;
+            case 'quit':
+                status = undefined;
+                for (let i = 0; i < domGrid.length; i++) {
+                    domGrid[i].removeEventListener('click', game.placeMarker);
+                }
+                gameBoard = [
+                    ['', '', ''],
+                    ['', '', ''],
+                    ['', '', '']
+                ];
+                clearDisplay();
+                break;
         }
+        
     }
 
     const getCurrentCell = (x, y) => {
@@ -160,6 +201,10 @@ const gameBoard = (() => {
 
     const updateDisplay = (x, y, marker) => {
         getCurrentCell(x, y).innerHTML = marker;
+    }
+
+    const clearDisplay = () => {
+        domGrid.forEach(el => el.innerHTML = '');
     }
 
     const checkForWin = (x, y, marker, turnCount) => {
