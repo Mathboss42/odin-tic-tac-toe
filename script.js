@@ -161,12 +161,11 @@ const gameBoard = (() => {
         switch (value) {
             case 'start':
                 status = 'ongoing';
-                for (let i = 0; i < domGrid.length; i++) {
-                    domGrid[i].addEventListener('click', game.placeMarker);
-                }
+                enableBoard();
                 break;
             case 'restart':
                 status = 'ongoing';
+                enableBoard();
                 gameBoard = [
                     ['', '', ''],
                     ['', '', ''],
@@ -186,6 +185,12 @@ const gameBoard = (() => {
                 break;
         }
         
+    }
+
+    const enableBoard = () => {
+        for (let i = 0; i < domGrid.length; i++) {
+            domGrid[i].addEventListener('click', game.placeMarker);
+        }
     }
 
     const disableBoard = () => {
