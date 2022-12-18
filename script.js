@@ -124,6 +124,9 @@ const game = (() => {
             if (currentPlayer === playerList[0]) {
                 currentPlayer = playerList[1];
                 playerList.forEach(el => el.isMyTurn = !(el.isMyTurn));
+                if (currentGamemode === 'player-vs-ai') {
+                    setTimeout(playerList[1].play, 1000);
+                }
             } else {
                 currentPlayer = playerList[0];
                 playerList.forEach(el => el.isMyTurn = !(el.isMyTurn));
@@ -139,10 +142,7 @@ const game = (() => {
         }
     }
 
-    const placeMarker = (e) => {
-        const x = e.target.dataset.x;
-        const y = e.target.dataset.y;
-
+    const placeMarker = (x, y) => {
         if (!(isMoveLegal(x, y))) {
             return;
         } else {
@@ -173,8 +173,12 @@ const game = (() => {
                 menu.displayAnnouncement(`Draw! No winner this time!`);
         }
     } 
+
+    const getPlayerList = () => {
+        return playerList;
+    }
     
-    return {start, restart, quit, placeMarker};
+    return {start, restart, quit, placeMarker, getPlayerList};
 })();
 
 
@@ -221,14 +225,19 @@ const gameBoard = (() => {
 
     const enableBoard = () => {
         for (let i = 0; i < domGrid.length; i++) {
-            domGrid[i].addEventListener('click', game.placeMarker);
+            domGrid[i].addEventListener('click', placeMarker);
         }
     }
 
     const disableBoard = () => {
         for (let i = 0; i < domGrid.length; i++) {
-            domGrid[i].removeEventListener('click', game.placeMarker);
+            domGrid[i].removeEventListener('click', placeMarker);
         }
+    }
+
+    const placeMarker = (e) => {
+        const coords = getCurrentCellCoordinates(e);
+        game.placeMarker(coords[0], coords[1]);
     }
 
     const getCurrentCell = (x, y) => {
@@ -239,6 +248,10 @@ const gameBoard = (() => {
             }
         }
         return currentCell;
+    }
+
+    getCurrentCellCoordinates = (e) => {
+        return [e.target.dataset.x, e.target.dataset.y];
     }
 
     const update = (x, y, marker, turnCount) => {
@@ -357,7 +370,27 @@ const gameBoard = (() => {
         return status;
     }
 
-    return {initGameBoard, getCurrentCell, update, getStatus};
+    const getAvailableCells = () => {
+        let moves = [];
+        gameBoard.forEach((el, index) => {
+            for (let i = 0; i < gameBoard.length; i++) {
+                if (el[i] === '') {
+                    moves.push([index, i])
+                }
+            }
+        });
+
+        console.log(moves);
+        return moves;
+    }
+
+    return {
+        initGameBoard, 
+        getCurrentCell, 
+        update, 
+        getStatus, 
+        getAvailableCells
+    };
 })();
 
 
@@ -371,5 +404,12 @@ const Player = (name, marker) => {
 
 const Ai = (name, marker) => {
     const prototype = Player(name, marker);
-    return Object.assign({}, prototype);
+
+    const play = () => {
+        const availableCells = gameBoard.getAvailableCells();
+        const randomCoordinates = availableCells[Math.floor(Math.random() * availableCells.length)]
+        game.placeMarker(randomCoordinates[0], randomCoordinates[1]);
+    }
+
+    return Object.assign({}, prototype, {play});
 }
