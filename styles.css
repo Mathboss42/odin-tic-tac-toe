@@ -56,8 +56,28 @@ button {
     grid-template-rows: repeat(3, 1fr);
 }
 
+.gamemode-interface {
+    position: absolute;
+    width: 400px;
+    height: 250px;
+    left: 50%;
+    top: 35%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background-color: rgb(43, 49, 54);
+}
+
 .hidden {
     display: none;
+}
+
+.blurred {
+    filter: blur(4px);
 }
 
 

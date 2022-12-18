@@ -1,10 +1,16 @@
 const menu = (() => {
     const start = () => {
-        game.start();
+        // game.start();
         startButton.classList.add('hidden');
-        restartButton.classList.remove('hidden');
-        quitButton.classList.remove('hidden');
+        container.classList.add('blurred');
+        gamemodeInterface.classList.remove('hidden');
+        // restartButton.classList.remove('hidden');
+        // quitButton.classList.remove('hidden');
     };
+
+    const startGame = (e) => {
+        game.start(e.target.dataset.gamemode)
+    }
     
     const restart = () => {
         game.restart();
@@ -33,10 +39,16 @@ const menu = (() => {
     const restartButton = document.querySelector('.restart-button');
     const quitButton = document.querySelector('.quit-button');
     const announcement = document.querySelector('.announcement');
+    const gamemodeInterface = document.querySelector('.gamemode-interface');
+    const container = document.querySelector('.container');
+    const playerVsPlayerButton = document.querySelector('[data-gamemode="player-vs-player"]');
+    const playerVsAiButton = document.querySelector('[data-gamemode="player-vs-ai"]');
     
     startButton.addEventListener('click', start);
     restartButton.addEventListener('click', restart);
     quitButton.addEventListener('click', quit);
+    playerVsPlayerButton.addEventListener('click', startGame);
+    playerVsAiButton.addEventListener('click', startGame);
 
     return {displayAnnouncement}
 })();
@@ -49,12 +61,20 @@ const game = (() => {
     let turnCount;
     const markers = ['X', 'O']
 
-    const start = () => {
-        console.log('start');
-        createPlayers();
-        setCurrentPlayer();
-        updageTurnCount();
-        gameBoard.initGameBoard('start');
+    const start = (gamemode) => {
+        switch (gamemode) {
+            case 'player-vs-player':
+                console.log(gamemode);           
+                break;
+            case 'player-vs-ai':
+                console.log(gamemode);           
+                break;
+        }
+        // console.log('start');
+        // createPlayers();
+        // setCurrentPlayer();
+        // updageTurnCount();
+        // gameBoard.initGameBoard('start');
     }
     
     const restart = () => {
@@ -74,7 +94,7 @@ const game = (() => {
         currentPlayer = undefined;
         gameBoard.initGameBoard('quit');
     }
-    
+
     const createPlayers = () => {
         if (playerList.length === 0) {
             for (let i = 0; i < 2; i++) {    
@@ -212,12 +232,20 @@ const gameBoard = (() => {
     const update = (x, y, marker, turnCount) => {
         updateGameBoard(x, y, marker);
         updateDisplay(x, y, marker);
+        if (isTerminal(x, y, marker, turnCount)) {
+            disableBoard();
+        }
+    }
+
+    const isTerminal = (x, y, marker, turnCount) => {
         if (checkForWin(x, y, marker, turnCount)) {
             status = 'win';
-            disableBoard();
+            return 'win';
         } else if (isGameBoardFull()) {
             status = 'draw';
-            disableBoard();
+            return 'draw';
+        } else {
+            return false;
         }
     }
 
@@ -326,4 +354,10 @@ const Player = (name, marker) => {
     let isMyTurn = false;
 
     return {name, marker, isMyTurn};
+}
+
+
+const AI = (name, marker) => {
+    const prototype = Person(name, marker)
+    return Object.assign({}, prototype);
 }
