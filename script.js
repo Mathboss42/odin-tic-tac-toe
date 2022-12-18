@@ -1,15 +1,16 @@
 const menu = (() => {
     const start = () => {
-        // game.start();
         startButton.classList.add('hidden');
         container.classList.add('blurred');
         gamemodeInterface.classList.remove('hidden');
-        // restartButton.classList.remove('hidden');
-        // quitButton.classList.remove('hidden');
     };
 
     const startGame = (e) => {
         game.start(e.target.dataset.gamemode)
+        restartButton.classList.remove('hidden');
+        quitButton.classList.remove('hidden');
+        container.classList.remove('blurred');
+        gamemodeInterface.classList.add('hidden');
     }
     
     const restart = () => {
@@ -59,28 +60,22 @@ const game = (() => {
     let playerList = [];
     let currentPlayer;
     let turnCount;
+    let currentGamemode = '';
     const markers = ['X', 'O']
 
     const start = (gamemode) => {
-        switch (gamemode) {
-            case 'player-vs-player':
-                console.log(gamemode);           
-                break;
-            case 'player-vs-ai':
-                console.log(gamemode);           
-                break;
-        }
-        // console.log('start');
-        // createPlayers();
-        // setCurrentPlayer();
-        // updageTurnCount();
-        // gameBoard.initGameBoard('start');
+        console.log('start');
+        currentGamemode = gamemode;
+        createPlayers(gamemode);
+        setCurrentPlayer();
+        updageTurnCount();
+        gameBoard.initGameBoard('start');
     }
     
     const restart = () => {
-        console.log('restart');
+        console.log('restart ' + currentGamemode);
         playerList = [];
-        createPlayers();
+        createPlayers(currentGamemode);
         setCurrentPlayer();
         turnCount = undefined;
         updageTurnCount();
@@ -95,12 +90,29 @@ const game = (() => {
         gameBoard.initGameBoard('quit');
     }
 
-    const createPlayers = () => {
-        if (playerList.length === 0) {
-            for (let i = 0; i < 2; i++) {    
-                const newPlayer = Player(`Player ${i+1}`, markers[i]);
-                playerList.push(newPlayer);
-            }
+    const createPlayers = (gamemode) => {
+        switch (gamemode) {
+            case 'player-vs-player':
+                console.log(gamemode);
+                if (playerList.length === 0) {
+                    for (let i = 0; i < 2; i++) {    
+                        const newPlayer = Player(`Player ${i+1}`, markers[i]);
+                        playerList.push(newPlayer);
+                    }
+                }           
+                console.log(playerList);
+                break;
+            case 'player-vs-ai':
+                if (playerList.length === 0) {
+                    const newPlayer = Player(`Player`, markers[0]);
+                    playerList.push(newPlayer);
+                    
+                    const newAi = Ai(`AI`, markers[1]);
+                    playerList.push(newAi);
+                }      
+                console.log(gamemode);
+                console.log(playerList);
+                break;
         }
     }
 
@@ -357,7 +369,7 @@ const Player = (name, marker) => {
 }
 
 
-const AI = (name, marker) => {
-    const prototype = Person(name, marker)
+const Ai = (name, marker) => {
+    const prototype = Player(name, marker);
     return Object.assign({}, prototype);
 }
