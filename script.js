@@ -284,14 +284,15 @@ const Board = ((gameBoardState) => {
 
     const isTerminalVirtual = () => {
         let status = false;
+        // console.log(gameBoard);
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 if (checkForWin(i, j, 'X', 4)) {
                     status = 'X';
-                    break;
+                    return status;
                 } else if (checkForWin(i, j, 'O', 4)) {
                     status = 'O';
-                    break;
+                    return status;
                 }
             }
         }
@@ -334,7 +335,7 @@ const Board = ((gameBoardState) => {
         for (let i = 0; i < gameBoard.length; i++) {
             if (gameBoard[x][i] == marker) {
                 bool = true;
-                continue;
+                // continue;
             } else {
                 bool = false;
                 break;
@@ -348,7 +349,7 @@ const Board = ((gameBoardState) => {
         for (let i = 0; i < gameBoard.length; i++) {
             if (gameBoard[i][y] == marker) {
                 bool = true;
-                continue;
+                // continue;
             } else {
                 bool = false;
                 break;
@@ -365,7 +366,7 @@ const Board = ((gameBoardState) => {
             for (let i = 0; i < gameBoard.length; i++) {
                 if(gameBoard[i][i] == marker) {
                     bool = true;
-                    continue;
+                    // continue;
                 } else {
                     bool = false;
                     break;
@@ -377,7 +378,7 @@ const Board = ((gameBoardState) => {
                 if(gameBoard[i][j] == marker) {
                     bool = true;
                     j--;
-                    continue;
+                    // continue;
                 } else {
                     bool = false;
                     break;
