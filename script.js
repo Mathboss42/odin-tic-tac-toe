@@ -455,7 +455,7 @@ const Ai = (name, marker) => {
     let nodesMap = new Map();
 
     const getBestMove = (board, maximizing, callback = () => {}, depth = 0) => {
-        console.log(`depth = ${depth}`);
+        // console.log(`depth = ${depth}`);
 
         if (depth == 0) nodesMap.clear();
 
@@ -465,8 +465,8 @@ const Ai = (name, marker) => {
             } else if (board.isTerminalVirtual() == 'O') {
                 return -100 + depth;
             }
-            console.log(`return 0 and maxdepth nodesMap`);
-            console.log(nodesMap);
+            // console.log(`return 0 and maxdepth nodesMap`);
+            // console.log(nodesMap);
             return 0;
         }
 
@@ -478,9 +478,9 @@ const Ai = (name, marker) => {
                     }));
                     child.updateGameBoard(el[0], el[1], 'O');
                     const nodeValue = getBestMove(child, true, callback, depth + 1);
-                    console.log(`nodeValue = ${nodeValue}`);
+                    // console.log(`nodeValue = ${nodeValue}`);
                     best = Math.min(best, nodeValue);
-                    console.log(`temp best = ${best}`);
+                    // console.log(`temp best = ${best}`);
 
                     if (depth == 0) {
                         const coords = [el[0], el[1]];
@@ -488,15 +488,15 @@ const Ai = (name, marker) => {
                             ? `${nodesMap.get(nodeValue)};${coords}`
                             : coords;
                         nodesMap.set(nodeValue, moves);
-                        console.log(`nodesMap at depth 0`);
-                        console.log(nodesMap);
+                        // console.log(`nodesMap at depth 0`);
+                        // console.log(nodesMap);
                     }
             });
 
             if (depth == 0) {
                 let ret;
-                console.log(best);
-                console.log(nodesMap.get(best))
+                // console.log(best);
+                // console.log(nodesMap.get(best))
                 if (typeof nodesMap.get(best) === 'string') {
                     const arr = nodesMap.get(best).split(';');
                     const rand = Math.floor(Math.random() * arr.length);
@@ -506,11 +506,11 @@ const Ai = (name, marker) => {
                 }
 
                 // callback(ret);
-                console.log(`ret =`);
-                console.log(ret);
+                // console.log(`ret =`);
+                // console.log(ret);
                 return ret;
             }
-            console.log(`best = ${best}`);
+            // console.log(`best = ${best}`);
             return best;
         }
 
@@ -522,9 +522,9 @@ const Ai = (name, marker) => {
                     }));
                     child.updateGameBoard(el[0], el[1], 'X');
                     const nodeValue = getBestMove(child, false, callback, depth + 1);
-                    console.log(`nodeValue = ${nodeValue}`);
+                    // console.log(`nodeValue = ${nodeValue}`);
                     best = Math.max(best, nodeValue);
-                    console.log(`temp best = ${best}`);
+                    // console.log(`temp best = ${best}`);
 
                     if (depth == 0) {
                         const coords = [el[0], el[1]];
@@ -532,15 +532,15 @@ const Ai = (name, marker) => {
                             ? `${nodesMap.get(nodeValue)};${coords}`
                             : coords;
                         nodesMap.set(nodeValue, moves);
-                        console.log(`nodesMap at depth 0`);
-                        console.log(nodesMap);
+                        // console.log(`nodesMap at depth 0`);
+                        // console.log(nodesMap);
                     }
             });
 
             if (depth == 0) {
                 let ret;
-                console.log(best);
-                console.log(nodesMap.get(best))
+                // console.log(best);
+                // console.log(nodesMap.get(best))
                 if (typeof nodesMap.get(best) === 'string') {
                     const arr = nodesMap.get(best).split(';');
                     const rand = Math.floor(Math.random() * arr.length);
@@ -550,11 +550,11 @@ const Ai = (name, marker) => {
                 }
 
                 // callback(ret);
-                console.log(`ret =`);
-                console.log(ret);
+                // console.log(`ret =`);
+                // console.log(ret);
                 return ret;
             }
-            console.log(`best = ${best}`);
+            // console.log(`best = ${best}`);
             return best;
         }
     }
@@ -563,6 +563,17 @@ const Ai = (name, marker) => {
         // const availableCells = game.getBoard().getAvailableCells();
         // const randomCoordinates = availableCells[Math.floor(Math.random() * availableCells.length)]
         // game.placeMarker(randomCoordinates[0], randomCoordinates[1]);
+        const bestCell = getBestMove(game.getBoard(), false);
+        if (typeof bestCell == 'string') {
+            const bestCellArray = bestCell.split(',')
+            game.placeMarker(bestCellArray[0], bestCellArray[1]);
+        } else {
+            game.placeMarker(bestCell[0], bestCell[1]);
+        }
+        // console.log(typeof bestCell);
+        // console.log(bestCell);
+        // console.log(typeof bestCellArray);
+        // console.log(bestCellArray);
     }
 
     return Object.assign({}, prototype, {play, getBestMove});
