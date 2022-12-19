@@ -61,6 +61,7 @@ const game = (() => {
     let currentPlayer;
     let turnCount;
     let currentGamemode = '';
+    let board = {};
     const markers = ['X', 'O']
 
     const start = (gamemode) => {
@@ -69,7 +70,12 @@ const game = (() => {
         createPlayers(gamemode);
         setCurrentPlayer();
         updageTurnCount();
-        gameBoard.initGameBoard('start');
+        board = Board([
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', '']
+        ]);
+        board.initGameBoard('start');
     }
     
     const restart = () => {
@@ -79,7 +85,7 @@ const game = (() => {
         setCurrentPlayer();
         turnCount = undefined;
         updageTurnCount();
-        gameBoard.initGameBoard('restart');
+        board.initGameBoard('restart');
     }
     
     const quit = () => {
@@ -87,7 +93,7 @@ const game = (() => {
         playerList = [];
         turnCount = undefined;
         currentPlayer = undefined;
-        gameBoard.initGameBoard('quit');
+        board.initGameBoard('quit');
     }
 
     const createPlayers = (gamemode) => {
@@ -146,18 +152,18 @@ const game = (() => {
         if (!(isMoveLegal(x, y))) {
             return;
         } else {
-            gameBoard.update(x, y, currentPlayer.marker, turnCount);
-            if (gameBoard.getStatus() === 'ongoing') {
+            board.update(x, y, currentPlayer.marker, turnCount);
+            if (board.getStatus() === 'ongoing') {
                 setCurrentPlayer();
                 updageTurnCount();
             } else {
-                endGame(gameBoard.getStatus(), currentPlayer);
+                endGame(board.getStatus(), currentPlayer);
             }
         }
     }
 
     const isMoveLegal = (x, y) => {
-        if (gameBoard.getCurrentCell(x, y).innerHTML === '') {
+        if (board.getCurrentCell(x, y).innerHTML === '') {
             return true;
         } else {
             return false;
@@ -177,19 +183,20 @@ const game = (() => {
     const getPlayerList = () => {
         return playerList;
     }
+
+    const getBoard = () => {
+        return board;
+    }
     
-    return {start, restart, quit, placeMarker, getPlayerList};
+    return {start, restart, quit, placeMarker, getPlayerList, getBoard};
 })();
 
 
 
-const gameBoard = (() => {
+const Board = ((gameBoardState) => {
     let status;
-    let gameBoard = [
-        ['', '', ''],
-        ['', '', ''],
-        ['', '', '']
-    ];
+    let gameBoard = gameBoardState;
+    let virtualGameBoard = [...gameBoard]
     
     const domGrid = document.querySelectorAll('.grid-cell');
     
@@ -265,7 +272,8 @@ const gameBoard = (() => {
     const isTerminal = (x, y, marker, turnCount) => {
         if (checkForWin(x, y, marker, turnCount)) {
             status = 'win';
-            return 'win';
+            let newMarker = marker;
+            return newMarker;
         } else if (isGameBoardFull()) {
             status = 'draw';
             return 'draw';
@@ -274,8 +282,31 @@ const gameBoard = (() => {
         }
     }
 
+    const isTerminalVirtual = () => {
+        let status = false;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (checkForWin(i, j, 'X', 4)) {
+                    status = 'X';
+                    break;
+                } else if (checkForWin(i, j, 'O', 4)) {
+                    status = 'O';
+                    break;
+                }
+            }
+        }
+        if (isGameBoardFull()) {
+            status = 'draw';
+        }
+        return status;
+    }
+
     const updateGameBoard = (x, y, marker) => {
         gameBoard[x][y] = marker;
+    }
+
+    const updateVirtualGameBoard = (x, y, marker) => {
+        virtualGameBoard[x][y] = marker;
     }
 
     const updateDisplay = (x, y, marker) => {
@@ -380,8 +411,16 @@ const gameBoard = (() => {
             }
         });
 
-        console.log(moves);
+        // console.log(moves);
         return moves;
+    }
+
+    const getGameBoard = () => {
+        return gameBoard;
+    }
+
+    const getVirtualGameBoard = () => {
+        return virtualGameBoard;
     }
 
     return {
@@ -389,9 +428,17 @@ const gameBoard = (() => {
         getCurrentCell, 
         update, 
         getStatus, 
-        getAvailableCells
+        getAvailableCells,
+        isTerminal,
+        updateGameBoard,
+        isGameBoardFull,
+        getGameBoard,
+        gameBoard,
+        getVirtualGameBoard,
+        updateVirtualGameBoard,
+        isTerminalVirtual,
     };
-})();
+})
 
 
 
@@ -404,12 +451,119 @@ const Player = (name, marker) => {
 
 const Ai = (name, marker) => {
     const prototype = Player(name, marker);
+    let maxDepth = -1;
+    let nodesMap = new Map();
 
-    const play = () => {
-        const availableCells = gameBoard.getAvailableCells();
-        const randomCoordinates = availableCells[Math.floor(Math.random() * availableCells.length)]
-        game.placeMarker(randomCoordinates[0], randomCoordinates[1]);
+    const getBestMove = (board, maximizing, callback = () => {}, depth = 0) => {
+        console.log(`depth = ${depth}`);
+
+        if (depth == 0) nodesMap.clear();
+
+        if (board.isTerminalVirtual() || depth == maxDepth) {
+            if(board.isTerminalVirtual() == 'X') {
+                return 100 - depth;
+            } else if (board.isTerminalVirtual() == 'O') {
+                return -100 + depth;
+            }
+            console.log(`return 0 and maxdepth nodesMap`);
+            console.log(nodesMap);
+            return 0;
+        }
+
+        if (!maximizing) {
+            let best = 100;
+            board.getAvailableCells().forEach((el, index) => {
+                    const child = Board(board.getGameBoard().map(function(arr) {
+                        return arr.slice();
+                    }));
+                    child.updateGameBoard(el[0], el[1], 'O');
+                    const nodeValue = getBestMove(child, true, callback, depth + 1);
+                    console.log(`nodeValue = ${nodeValue}`);
+                    best = Math.min(best, nodeValue);
+                    console.log(`temp best = ${best}`);
+
+                    if (depth == 0) {
+                        const coords = [el[0], el[1]];
+                        const moves = nodesMap.has(nodeValue)
+                            ? `${nodesMap.get(nodeValue)};${coords}`
+                            : coords;
+                        nodesMap.set(nodeValue, moves);
+                        console.log(`nodesMap at depth 0`);
+                        console.log(nodesMap);
+                    }
+            });
+
+            if (depth == 0) {
+                let ret;
+                console.log(best);
+                console.log(nodesMap.get(best))
+                if (typeof nodesMap.get(best) === 'string') {
+                    const arr = nodesMap.get(best).split(';');
+                    const rand = Math.floor(Math.random() * arr.length);
+                    ret = arr[rand];
+                } else {
+                    ret = nodesMap.get(best);
+                }
+
+                // callback(ret);
+                console.log(`ret =`);
+                console.log(ret);
+                return ret;
+            }
+            console.log(`best = ${best}`);
+            return best;
+        }
+
+        if (maximizing) {
+            let best = -100;
+            board.getAvailableCells().forEach((el, index) => {
+                    const child = Board(board.getGameBoard().map(function(arr) {
+                        return arr.slice();
+                    }));
+                    child.updateGameBoard(el[0], el[1], 'X');
+                    const nodeValue = getBestMove(child, false, callback, depth + 1);
+                    console.log(`nodeValue = ${nodeValue}`);
+                    best = Math.max(best, nodeValue);
+                    console.log(`temp best = ${best}`);
+
+                    if (depth == 0) {
+                        const coords = [el[0], el[1]];
+                        const moves = nodesMap.has(nodeValue)
+                            ? `${nodesMap.get(nodeValue)};${coords}`
+                            : coords;
+                        nodesMap.set(nodeValue, moves);
+                        console.log(`nodesMap at depth 0`);
+                        console.log(nodesMap);
+                    }
+            });
+
+            if (depth == 0) {
+                let ret;
+                console.log(best);
+                console.log(nodesMap.get(best))
+                if (typeof nodesMap.get(best) === 'string') {
+                    const arr = nodesMap.get(best).split(';');
+                    const rand = Math.floor(Math.random() * arr.length);
+                    ret = arr[rand];
+                } else {
+                    ret = nodesMap.get(best);
+                }
+
+                // callback(ret);
+                console.log(`ret =`);
+                console.log(ret);
+                return ret;
+            }
+            console.log(`best = ${best}`);
+            return best;
+        }
     }
 
-    return Object.assign({}, prototype, {play});
+    const play = () => {
+        // const availableCells = game.getBoard().getAvailableCells();
+        // const randomCoordinates = availableCells[Math.floor(Math.random() * availableCells.length)]
+        // game.placeMarker(randomCoordinates[0], randomCoordinates[1]);
+    }
+
+    return Object.assign({}, prototype, {play, getBestMove});
 }
