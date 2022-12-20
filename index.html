@@ -13,9 +13,19 @@
         <button class="gamemode-button" data-gamemode="player-vs-player">
             Player VS Player
         </button>
-        <button class="gamemode-button unblurred" data-gamemode="player-vs-ai">
-            Player VS AI
-        </button>
+        <div class="vs-ai-container">
+            <button class="gamemode-button unblurred" data-gamemode="player-vs-ai">
+                Player VS AI
+            </button>
+            <div class="difficulty-container">
+                <label for="difficulty-select">Difficulty</label>
+                <select name="difficulty" id="difficulty-select">
+                    <option value="easy" selected>Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="impossible">Impossible</option>
+                </select>
+            </div>
+        </div>
     </div>
     <div class="container">
         <div class="menu">

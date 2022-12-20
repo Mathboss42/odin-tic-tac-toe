@@ -6,7 +6,7 @@ const menu = (() => {
     };
 
     const startGame = (e) => {
-        game.start(e.target.dataset.gamemode)
+        game.start(e.target.dataset.gamemode, difficultySelect.value);
         restartButton.classList.remove('hidden');
         quitButton.classList.remove('hidden');
         container.classList.remove('blurred');
@@ -44,6 +44,7 @@ const menu = (() => {
     const container = document.querySelector('.container');
     const playerVsPlayerButton = document.querySelector('[data-gamemode="player-vs-player"]');
     const playerVsAiButton = document.querySelector('[data-gamemode="player-vs-ai"]');
+    const difficultySelect = document.querySelector('#difficulty-select');
     
     startButton.addEventListener('click', start);
     restartButton.addEventListener('click', restart);
@@ -64,10 +65,11 @@ const game = (() => {
     let board = {};
     const markers = ['X', 'O']
 
-    const start = (gamemode) => {
-        console.log('start');
+    const start = (gamemode, difficulty) => {
+        console.log(`start ${difficulty}`);
         currentGamemode = gamemode;
-        createPlayers(gamemode);
+        createPlayers(gamemode, difficulty);
+        currentDifficulty = difficulty;
         setCurrentPlayer();
         updageTurnCount();
         board = Board([
@@ -81,7 +83,7 @@ const game = (() => {
     const restart = () => {
         console.log('restart ' + currentGamemode);
         playerList = [];
-        createPlayers(currentGamemode);
+        createPlayers(currentGamemode, currentDifficulty);
         setCurrentPlayer();
         turnCount = undefined;
         updageTurnCount();
@@ -96,7 +98,7 @@ const game = (() => {
         board.initGameBoard('quit');
     }
 
-    const createPlayers = (gamemode) => {
+    const createPlayers = (gamemode, difficulty) => {
         switch (gamemode) {
             case 'player-vs-player':
                 console.log(gamemode);
@@ -113,7 +115,7 @@ const game = (() => {
                     const newPlayer = Player(`Player`, markers[0]);
                     playerList.push(newPlayer);
                     
-                    const newAi = Ai(`AI`, markers[1]);
+                    const newAi = Ai(`AI`, markers[1], difficulty);
                     playerList.push(newAi);
                 }      
                 console.log(gamemode);
@@ -466,10 +468,11 @@ const Player = (name, marker) => {
 }
 
 
-const Ai = (name, marker) => {
+const Ai = (name, marker, difficulty) => {
     const prototype = Player(name, marker);
     let maxDepth = -1;
     let nodesMap = new Map();
+    let currentDifficulty = difficulty;
 
     const getBestMove = (board, maximizing, callback = () => {}, depth = 0) => {
         // console.log(`depth = ${depth}`);
@@ -577,15 +580,36 @@ const Ai = (name, marker) => {
     }
 
     const play = () => {
-        // const availableCells = game.getBoard().getAvailableCells();
-        // const randomCoordinates = availableCells[Math.floor(Math.random() * availableCells.length)]
-        // game.placeMarker(randomCoordinates[0], randomCoordinates[1]);
-        const bestCell = getBestMove(game.getBoard(), false);
-        if (typeof bestCell == 'string') {
-            const bestCellArray = bestCell.split(',')
-            game.placeMarker(bestCellArray[0], bestCellArray[1]);
-        } else {
-            game.placeMarker(bestCell[0], bestCell[1]);
+        switch (currentDifficulty) {
+            case 'easy':
+                console.log(`difficulty = ${currentDifficulty}`);
+                const availableCells = game.getBoard().getAvailableCells();
+                const randomCoordinates = availableCells[Math.floor(Math.random() * availableCells.length)]
+                game.placeMarker(randomCoordinates[0], randomCoordinates[1]);
+                break;
+            case 'medium':
+                console.log(`difficulty = ${currentDifficulty}`);
+                maxDepth = 3;
+                const bestCellMedium = getBestMove(game.getBoard(), false);
+                if (typeof bestCellMedium == 'string') {
+                    const bestCellArrayMedium = bestCellMedium.split(',')
+                    game.placeMarker(bestCellArrayMedium[0], bestCellArrayMedium[1]);
+                } else {
+                    game.placeMarker(bestCellMedium[0], bestCellMedium[1]);
+                }  
+                break;
+            case 'impossible':
+                console.log(`difficulty = ${currentDifficulty}`);
+                maxDepth = -1;
+                const bestCell = getBestMove(game.getBoard(), false);
+                if (typeof bestCell == 'string') {
+                    const bestCellArray = bestCell.split(',')
+                    game.placeMarker(bestCellArray[0], bestCellArray[1]);
+                } else {
+                    game.placeMarker(bestCell[0], bestCell[1]);
+                }
+                break;
+                
         }
         // console.log(typeof bestCell);
         // console.log(bestCell);
