@@ -3,10 +3,12 @@ const menu = (() => {
         startButton.classList.add('hidden');
         container.classList.add('blurred');
         gamemodeInterface.classList.remove('hidden');
+        setTimeout(document.addEventListener('click', closeGamemodeInterface), 100000);
     };
 
     const startGame = (e) => {
         game.start(e.target.dataset.gamemode, difficultySelect.value);
+        document.removeEventListener('click', closeGamemodeInterface);
         restartButton.classList.remove('hidden');
         quitButton.classList.remove('hidden');
         container.classList.remove('blurred');
@@ -34,6 +36,17 @@ const menu = (() => {
     const clearAnnouncement = () => {
         announcement.innerHTML = '';
         announcement.classList.add('hidden');
+    }
+
+    const closeGamemodeInterface = (event) => {
+        const isClickInside = gamemodeInterface.contains(event.target);
+        const isClickStart = startButton.contains(event.target);
+        if(!isClickInside && !isClickStart) {
+            startButton.classList.remove('hidden');
+            container.classList.remove('blurred');
+            gamemodeInterface.classList.add('hidden');
+            document.removeEventListener('click', closeGamemodeInterface);
+        }
     }
 
     const startButton = document.querySelector('.start-button');
