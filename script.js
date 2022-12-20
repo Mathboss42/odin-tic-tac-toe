@@ -75,7 +75,7 @@ const game = (() => {
             ['', '', ''],
             ['', '', '']
         ]);
-        board.initGameBoard('start');
+        board.initGameBoard('start', gamemode);
     }
     
     const restart = () => {
@@ -195,15 +195,18 @@ const game = (() => {
 
 const Board = ((gameBoardState) => {
     let status;
+    let isBoardEnabled = false;
+    let gameMode;
     let gameBoard = gameBoardState;
     let virtualGameBoard = [...gameBoard]
     
     const domGrid = document.querySelectorAll('.grid-cell');
     
-    const initGameBoard = (value) => {
+    const initGameBoard = (value, gamemode) => {
         switch (value) {
             case 'start':
                 status = 'ongoing';
+                gameMode = gamemode;
                 enableBoard();
                 break;
             case 'restart':
@@ -218,6 +221,7 @@ const Board = ((gameBoardState) => {
                 break;
             case 'quit':
                 status = undefined;
+                gameMode = undefined;
                 disableBoard();
                 gameBoard = [
                     ['', '', ''],
@@ -234,12 +238,14 @@ const Board = ((gameBoardState) => {
         for (let i = 0; i < domGrid.length; i++) {
             domGrid[i].addEventListener('click', placeMarker);
         }
+        isBoardEnabled = true;
     }
 
     const disableBoard = () => {
         for (let i = 0; i < domGrid.length; i++) {
             domGrid[i].removeEventListener('click', placeMarker);
         }
+        isBoardEnabled = false;
     }
 
     const placeMarker = (e) => {
@@ -264,8 +270,18 @@ const Board = ((gameBoardState) => {
     const update = (x, y, marker, turnCount) => {
         updateGameBoard(x, y, marker);
         updateDisplay(x, y, marker);
-        if (isTerminal(x, y, marker, turnCount)) {
-            disableBoard();
+        if (gameMode == 'player-vs-ai') {
+            if (isTerminal(x, y, marker, turnCount)) {
+                disableBoard();
+            } else if (isBoardEnabled) {
+                disableBoard();
+            } else if(!isBoardEnabled) {
+                enableBoard();
+            }
+        } else {
+            if (isTerminal(x, y, marker, turnCount)) {
+                disableBoard();
+            }
         }
     }
 
