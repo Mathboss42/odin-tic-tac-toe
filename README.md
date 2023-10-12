@@ -1,6 +1,6 @@
 Project: Tic-Tac-Toe
 
-Objective: Recreat Tic-Tac-Toe game in JS.
+Objective: Recreate Tic-Tac-Toe game in JS.
 
 
 
